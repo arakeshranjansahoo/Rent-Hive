@@ -6,11 +6,6 @@
     "FLASK_ENV": "production",
     "PYTHONUNBUFFERED": "1"
   },
-  "functions": {
-    "api/index.py": {
-      "runtime": "python3.11"
-    }
-  },
   "routes": [
     {
       "src": "/(.*)",
