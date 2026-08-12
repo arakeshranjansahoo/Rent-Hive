@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Create Bill - RentHive{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <h2><i class="fas fa-file-invoice-dollar"></i> Create Bill</h2>
+        <p class="text-muted">Room {{ room.room_number }} - {{ tenant.user.full_name }}</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Bill Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('billing.create_bill', room_id=room.id) }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="bill_month" class="form-label">Bill Month (YYYY-MM) *</label>
+                            {{ form.bill_month(class="form-control", placeholder="2024-01") }}
+                            {% if form.bill_month.errors %}
+                                <div class="text-danger small mt-1">{{ form.bill_month.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="due_date" class="form-label">Due Date *</label>
+                            {{ form.due_date(class="form-control", type="date") }}
+                            {% if form.due_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.due_date.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="rent_amount" class="form-label">Monthly Rent *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            {{ form.rent_amount(class="form-control", step="0.01") }}
+                        </div>
+                        {% if form.rent_amount.errors %}
+                            <div class="text-danger small mt-1">{{ form.rent_amount.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card mb-3" style="background-color: var(--sandy-dune);">
+                        <div class="card-body">
+                            <h6><i class="fas fa-bolt"></i> Electricity Charges</h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <label for="electricity_units" class="form-label">Units Consumed</label>
+                                    {{ form.electricity_units(class="form-control", step="0.01", placeholder="0") }}
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label for="electricity_rate" class="form-label">Rate per Unit (₹)</label>
+                                    {{ form.electricity_rate(class="form-control", step="0.01", placeholder="5.00") }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="water_amount" class="form-label">Water Charges</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                {{ form.water_amount(class="form-control", step="0.01", placeholder="0") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="maintenance_amount" class="form-label">Maintenance Charges</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                {{ form.maintenance_amount(class="form-control", step="0.01", placeholder="0") }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="other_charges" class="form-label">Other Charges</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            {{ form.other_charges(class="form-control", step="0.01", placeholder="0") }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="other_charges_description" class="form-label">Other Charges Description</label>
+                        {{ form.other_charges_description(class="form-control", rows="2", placeholder="Describe other charges...") }}
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check-circle"></i> Generate Bill
+                        </button>
+                        <a href="{{ url_for('properties.view_room', room_id=room.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-calculate electricity amount
+    const unitsInput = document.querySelector('[name="electricity_units"]');
+    const rateInput = document.querySelector('[name="electricity_rate"]');
+    
+    function updateElectricityAmount() {
+        const units = parseFloat(unitsInput.value) || 0;
+        const rate = parseFloat(rateInput.value) || 0;
+        const amount = units * rate;
+        
+        // You can display this calculated amount in the UI if needed
+        console.log('Electricity Amount:', amount.toFixed(2));
+    }
+    
+    if (unitsInput && rateInput) {
+        unitsInput.addEventListener('input', updateElectricityAmount);
+        rateInput.addEventListener('input', updateElectricityAmount);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Add Property - RentHive{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-plus-circle"></i> Add New Property</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('properties.add_property') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Property Name *</label>
+                        {{ form.name(class="form-control", placeholder="e.g., Sunset Apartments") }}
+                        {% if form.name.errors %}
+                            <div class="text-danger small mt-1">{{ form.name.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="property_type" class="form-label">Property Type *</label>
+                        {{ form.property_type(class="form-select") }}
+                        {% if form.property_type.errors %}
+                            <div class="text-danger small mt-1">{{ form.property_type.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address *</label>
+                        {{ form.address(class="form-control", rows="3", placeholder="Full address") }}
+                        {% if form.address.errors %}
+                            <div class="text-danger small mt-1">{{ form.address.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="city" class="form-label">City *</label>
+                            {{ form.city(class="form-control", placeholder="City") }}
+                            {% if form.city.errors %}
+                                <div class="text-danger small mt-1">{{ form.city.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="state" class="form-label">State *</label>
+                            {{ form.state(class="form-control", placeholder="State") }}
+                            {% if form.state.errors %}
+                                <div class="text-danger small mt-1">{{ form.state.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="pincode" class="form-label">Pincode *</label>
+                            {{ form.pincode(class="form-control", placeholder="Pincode") }}
+                            {% if form.pincode.errors %}
+                                <div class="text-danger small mt-1">{{ form.pincode.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="total_rooms" class="form-label">Total Rooms *</label>
+                        {{ form.total_rooms(class="form-control", placeholder="Number of rooms") }}
+                        {% if form.total_rooms.errors %}
+                            <div class="text-danger small mt-1">{{ form.total_rooms.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Save Property
+                        </button>
+                        <a href="{{ url_for('properties.list_properties') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

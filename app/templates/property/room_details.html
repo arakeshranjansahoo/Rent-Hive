@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Room {{ room.room_number }} - RentHive{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('properties.view_property', property_id=property.id) }}">{{ property.name }}</a></li>
+                <li class="breadcrumb-item active">Room {{ room.room_number }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col">
+        <h2><i class="fas fa-door-open"></i> Room {{ room.room_number }}</h2>
+    </div>
+    {% if current_user.role == 'owner' %}
+    <div class="col-auto">
+        <a href="{{ url_for('billing.create_bill', room_id=room.id) }}" class="btn btn-success me-2">
+            <i class="fas fa-file-invoice"></i> Create Bill
+        </a>
+        <a href="{{ url_for('billing.add_meter_reading', room_id=room.id) }}" class="btn btn-primary">
+            <i class="fas fa-tachometer-alt"></i> Add Reading
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Room Details -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle"></i> Room Information
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th>Room Number:</th>
+                        <td>{{ room.room_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>Floor:</th>
+                        <td>{{ room.floor if room.floor else 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Type:</th>
+                        <td>{{ room.room_type.title() }}</td>
+                    </tr>
+                    <tr>
+                        <th>Status:</th>
+                        <td>
+                            <span class="badge bg-{{ 'success' if room.status == 'occupied' else 'warning' }}">
+                                {{ room.status.upper() }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Monthly Rent:</th>
+                        <td><strong>₹{{ "%.2f"|format(room.rent_amount) }}</strong></td>
+                    </tr>
+                    <tr>
+                        <th>Security Deposit:</th>
+                        <td>₹{{ "%.2f"|format(room.deposit_amount) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Amenities:</th>
+                        <td>{{ room.amenities if room.amenities else 'None' }}</td>
+                    </tr>
+                </table>
+                {% if current_user.role == 'owner' %}
+                <a href="{{ url_for('properties.edit_room', room_id=room.id) }}" class="btn btn-primary w-100">
+                    <i class="fas fa-edit"></i> Edit Room
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Current Tenants -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-users"></i> Current Tenants
+            </div>
+            <div class="card-body">
+                {% if tenants %}
+                    {% for tenant in tenants %}
+                        <div class="mb-3 pb-3 border-bottom">
+                            <h6>{{ tenant.user.full_name }}</h6>
+                            <p class="mb-1"><small><i class="fas fa-envelope"></i> {{ tenant.user.email }}</small></p>
+                            <p class="mb-1"><small><i class="fas fa-phone"></i> {{ tenant.user.phone }}</small></p>
+                            <p class="mb-1"><small><i class="fas fa-id-card"></i> {{ tenant.id_proof_type.upper() }}: {{ tenant.id_proof_number }}</small></p>
+                            <p class="mb-1"><small><i class="fas fa-calendar"></i> Move-in: 
+                                {{ tenant.move_in_date.strftime('%d-%m-%Y') if tenant.move_in_date else 'N/A' }}
+                            </small></p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No tenants assigned</p>
+                        {% if current_user.role == 'owner' %}
+                        <a href="{{ url_for('properties.add_tenant', room_id=room.id) }}" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Add Tenant
+                        </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Tenant Dashboard - RentHive{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2><i class="fas fa-tachometer-alt"></i> Tenant Dashboard</h2>
+        <p class="text-muted">Welcome back, {{ current_user.full_name }}!</p>
+    </div>
+</div>
+
+{% if tenant %}
+    <!-- Current Room Info -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-door-open"></i> Current Room Details
+                </div>
+                <div class="card-body">
+                    {% if room %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>{{ room.property.name }}</h5>
+                                <p class="mb-1"><strong>Room:</strong> {{ room.room_number }}</p>
+                                <p class="mb-1"><strong>Type:</strong> {{ room.room_type.title() }}</p>
+                                <p class="mb-1"><strong>Monthly Rent:</strong> ₹{{ "%.2f"|format(room.rent_amount) }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Address:</strong> {{ room.property.address }}</p>
+                                <p class="mb-1"><strong>City:</strong> {{ room.property.city }}</p>
+                                <p class="mb-1"><strong>Lease Period:</strong> 
+                                    {% if tenant.lease_start and tenant.lease_end %}
+                                        {{ tenant.lease_start.strftime('%d-%m-%Y') }} to {{ tenant.lease_end.strftime('%d-%m-%Y') }}
+                                    {% else %}
+                                        Not specified
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <p class="text-muted">No room assigned yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <i class="fas fa-file-invoice fa-2x mb-2"></i>
+                <h3>{{ stats.total_bills }}</h3>
+                <p>Total Bills</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <i class="fas fa-clock fa-2x mb-2"></i>
+                <h3>{{ stats.pending_bills }}</h3>
+                <p>Pending Bills</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <i class="fas fa-check-circle fa-2x mb-2"></i>
+                <h3>{{ stats.paid_bills }}</h3>
+                <p>Paid Bills</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <i class="fas fa-rupee-sign fa-2x mb-2"></i>
+                <h3>₹{{ "%.2f"|format(stats.total_pending) }}</h3>
+                <p>Total Pending</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Bills -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-exclamation-circle"></i> Pending Bills
+                </div>
+                <div class="card-body">
+                    {% if pending_bills %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Bill Number</th>
+                                        <th>Month</th>
+                                        <th>Amount</th>
+                                        <th>Due Date</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for bill in pending_bills %}
+                                        <tr>
+                                            <td>{{ bill.bill_number }}</td>
+                                            <td>{{ bill.bill_month }}</td>
+                                            <td>₹{{ "%.2f"|format(bill.balance) }}</td>
+                                            <td>{{ bill.due_date.strftime('%d-%m-%Y') }}</td>
+                                            <td>
+                                                <span class="badge badge-{{ bill.status }}">
+                                                    {{ bill.status }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('billing.view_bill', bill_id=bill.id) }}" 
+                                                   class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <p class="text-success">No pending bills! You're all caught up!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Meter Readings -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-bolt"></i> Recent Meter Readings
+                </div>
+                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                    {% if recent_readings %}
+                        {% for reading in recent_readings %}
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="d-flex justify-content-between">
+                                    <strong>{{ reading.meter_type.title() }}</strong>
+                                    <small class="text-muted">{{ reading.reading_date.strftime('%d-%m-%Y') }}</small>
+                                </div>
+                                <div class="mt-1">
+                                    <small>
+                                        {{ reading.previous_reading }} → {{ reading.current_reading }}<br>
+                                        <strong>{{ reading.units_consumed }} units</strong> | ₹{{ "%.2f"|format(reading.amount) }}
+                                    </small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No meter readings recorded</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-bolt"></i> Quick Actions
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <a href="{{ url_for('billing.list_bills') }}" class="btn btn-outline-primary btn-lg w-100 mb-2">
+                                <i class="fas fa-file-invoice fa-2x d-block mb-2"></i>
+                                View All Bills
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('billing.list_meter_readings') }}" class="btn btn-outline-success btn-lg w-100 mb-2">
+                                <i class="fas fa-tachometer-alt fa-2x d-block mb-2"></i>
+                                Meter Readings
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('main.profile') }}" class="btn btn-outline-info btn-lg w-100 mb-2">
+                                <i class="fas fa-user fa-2x d-block mb-2"></i>
+                                My Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <!-- No Tenant Profile -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                    <h4>Tenant Profile Not Found</h4>
+                    <p class="text-muted">Please contact your property owner to set up your profile.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

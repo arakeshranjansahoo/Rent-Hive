@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Bill {{ bill.bill_number }} - RentHive{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('billing.list_bills') }}">Bills</a></li>
+                <li class="breadcrumb-item active">{{ bill.bill_number }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col">
+        <h2><i class="fas fa-file-invoice-dollar"></i> Bill Details</h2>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('billing.list_bills') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Bills
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-light">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="mb-0"><strong>{{ bill.bill_number }}</strong></h5>
+                        <small class="text-muted">Bill Month: {{ bill.bill_month }}</small>
+                    </div>
+                    <div class="col-auto text-end">
+                        {% if bill.status == 'paid' %}
+                            <span class="badge bg-success">PAID</span>
+                        {% elif bill.status == 'overdue' %}
+                            <span class="badge bg-danger">OVERDUE</span>
+                        {% else %}
+                            <span class="badge bg-warning">PENDING</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <!-- Room & Tenant Info -->
+                <div class="row mb-4 pb-4 border-bottom">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Property & Room</h6>
+                        <p class="mb-1"><strong>{{ bill.room.property.name }}</strong></p>
+                        <p class="mb-0">Room {{ bill.room.room_number }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Tenant</h6>
+                        <p class="mb-1"><strong>{{ bill.tenant.user.full_name }}</strong></p>
+                        <p class="mb-0">{{ bill.tenant.user.email }}</p>
+                    </div>
+                </div>
+                
+                <!-- Bill Items -->
+                <h6 class="mb-3">Charges Breakdown</h6>
+                <div class="table-responsive">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td><strong>Monthly Rent</strong></td>
+                                <td class="text-end">₹{{ "%.2f"|format(bill.rent_amount) }}</td>
+                            </tr>
+                            {% if bill.electricity_amount > 0 %}
+                            <tr>
+                                <td>
+                                    <strong>Electricity</strong>
+                                    <small class="text-muted d-block">{{ bill.electricity_units }} units @ ₹{{ "%.2f"|format(bill.electricity_amount / bill.electricity_units) }}/unit</small>
+                                </td>
+                                <td class="text-end">₹{{ "%.2f"|format(bill.electricity_amount) }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if bill.water_amount > 0 %}
+                            <tr>
+                                <td><strong>Water Charges</strong></td>
+                                <td class="text-end">₹{{ "%.2f"|format(bill.water_amount) }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if bill.maintenance_amount > 0 %}
+                            <tr>
+                                <td><strong>Maintenance Charges</strong></td>
+                                <td class="text-end">₹{{ "%.2f"|format(bill.maintenance_amount) }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if bill.other_charges > 0 %}
+                            <tr>
+                                <td>
+                                    <strong>Other Charges</strong>
+                                    {% if bill.other_charges_description %}
+                                    <small class="text-muted d-block">{{ bill.other_charges_description }}</small>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">₹{{ "%.2f"|format(bill.other_charges) }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr class="table-active">
+                                <td><strong>Total Amount Due</strong></td>
+                                <td class="text-end"><strong>₹{{ "%.2f"|format(bill.total_amount) }}</strong></td>
+                            </tr>
+                            {% if bill.balance > 0 %}
+                            <tr class="table-warning">
+                                <td><strong>Outstanding Balance</strong></td>
+                                <td class="text-end"><strong>₹{{ "%.2f"|format(bill.balance) }}</strong></td>
+                            </tr>
+                            {% elif bill.balance < 0 %}
+                            <tr class="table-success">
+                                <td><strong>Credit Balance</strong></td>
+                                <td class="text-end"><strong>₹{{ "%.2f"|format(abs(bill.balance)) }}</strong></td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Dates -->
+                <div class="row mt-4 pt-3 border-top">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Created Date</h6>
+                        <p class="mb-0">{{ bill.created_at.strftime('%d-%m-%Y %H:%M') if bill.created_at else 'N/A' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Due Date</h6>
+                        <p class="mb-0">
+                            {{ bill.due_date.strftime('%d-%m-%Y') if bill.due_date else 'N/A' }}
+                            {% if bill.status == 'overdue' %}
+                            <span class="badge bg-danger">OVERDUE</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="card-footer bg-light">
+                <div class="d-flex gap-2">
+                    {% if bill.pdf_file %}
+                    <a href="{{ url_for('billing.download_bill', bill_id=bill.id) }}" class="btn btn-sm btn-info">
+                        <i class="fas fa-download"></i> Download PDF
+                    </a>
+                    {% endif %}
+                    
+                    {% if current_user.role == 'owner' and bill.status != 'paid' %}
+                    <a href="{{ url_for('billing.record_payment', bill_id=bill.id) }}" class="btn btn-sm btn-success">
+                        <i class="fas fa-money-bill"></i> Record Payment
+                    </a>
+                    {% elif current_user.role == 'tenant' and bill.status != 'paid' %}
+                    <a href="{{ url_for('billing.record_payment', bill_id=bill.id) }}" class="btn btn-sm btn-success">
+                        <i class="fas fa-credit-card"></i> Pay Now
+                    </a>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('billing.list_bills') }}" class="btn btn-sm btn-secondary ms-auto">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Summary Card -->
+    <div class="col-md-4">
+        <div class="card mb-3 {% if bill.status == 'paid' %}border-success{% elif bill.status == 'overdue' %}border-danger{% else %}border-warning{% endif %}">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Total Amount</h6>
+                <h2 class="mb-3">₹{{ "%.2f"|format(bill.total_amount) }}</h2>
+                
+                {% if bill.status == 'paid' %}
+                <span class="badge bg-success w-100">FULLY PAID</span>
+                {% elif bill.balance > 0 %}
+                <div>
+                    <p class="text-muted mb-2">Outstanding Balance</p>
+                    <h4 class="text-danger mb-3">₹{{ "%.2f"|format(bill.balance) }}</h4>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">Bill Information</h6>
+            </div>
+            <div class="card-body small">
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <th>Bill Number:</th>
+                        <td>{{ bill.bill_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>Bill Month:</th>
+                        <td>{{ bill.bill_month }}</td>
+                    </tr>
+                    <tr>
+                        <th>Status:</th>
+                        <td>
+                            {% if bill.status == 'paid' %}
+                            <span class="badge bg-success">Paid</span>
+                            {% elif bill.status == 'overdue' %}
+                            <span class="badge bg-danger">Overdue</span>
+                            {% else %}
+                            <span class="badge bg-warning">Pending</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Created:</th>
+                        <td>{{ bill.created_at.strftime('%d-%m-%Y') if bill.created_at else 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Due Date:</th>
+                        <td>{{ bill.due_date.strftime('%d-%m-%Y') if bill.due_date else 'N/A' }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

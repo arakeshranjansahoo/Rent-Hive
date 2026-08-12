@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Add Meter Reading - RentHive{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('billing.list_meter_readings') }}">Meter Readings</a></li>
+                <li class="breadcrumb-item active">Add Reading</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-tachometer-alt"></i> Add Meter Reading</h4>
+                <p class="text-muted mb-0">Property: <strong>{{ room.property.name }}</strong> | Room: <strong>{{ room.room_number }}</strong></p>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('billing.add_meter_reading', room_id=room.id) }}" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="meter_type" class="form-label">Meter Type *</label>
+                            {{ form.meter_type(class="form-select") }}
+                            {% if form.meter_type.errors %}
+                                <div class="text-danger small mt-1">{{ form.meter_type.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="reading_date" class="form-label">Reading Date *</label>
+                            {{ form.reading_date(class="form-control", type="date") }}
+                            {% if form.reading_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.reading_date.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-3" style="background-color: var(--sandy-dune);">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-gauge"></i> Meter Readings</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="previous_reading" class="form-label">Previous Reading *</label>
+                                    {{ form.previous_reading(class="form-control", step="0.01", placeholder="0.00") }}
+                                    {% if form.previous_reading.errors %}
+                                        <div class="text-danger small mt-1">{{ form.previous_reading.errors[0] }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="current_reading" class="form-label">Current Reading *</label>
+                                    {{ form.current_reading(class="form-control", step="0.01", placeholder="0.00") }}
+                                    {% if form.current_reading.errors %}
+                                        <div class="text-danger small mt-1">{{ form.current_reading.errors[0] }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info" role="alert" id="units-info" style="display:none;">
+                                <strong>Units Consumed:</strong> <span id="units-value">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="rate_per_unit" class="form-label">Rate per Unit (₹) *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            {{ form.rate_per_unit(class="form-control", step="0.01", placeholder="0.00") }}
+                        </div>
+                        {% if form.rate_per_unit.errors %}
+                            <div class="text-danger small mt-1">{{ form.rate_per_unit.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="photo" class="form-label">Meter Photo (Optional)</label>
+                        <div class="input-group">
+                            {{ form.photo(class="form-control") }}
+                            <span class="input-group-text"><i class="fas fa-image"></i></span>
+                        </div>
+                        <small class="text-muted">JPG, JPEG, or PNG (Max 5MB)</small>
+                        {% if form.photo.errors %}
+                            <div class="text-danger small mt-1">{{ form.photo.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes (Optional)</label>
+                        {{ form.notes(class="form-control", rows="3", placeholder="Any observations or notes about this reading...") }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger small mt-1">{{ form.notes.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Amount Summary -->
+                    <div class="card bg-light mb-3">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>Units Consumed:</strong></p>
+                                    <h5 id="summary-units">0</h5>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <p class="mb-1"><strong>Amount:</strong></p>
+                                    <h5 id="summary-amount">₹0.00</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Save Reading
+                        </button>
+                        <a href="{{ url_for('billing.list_meter_readings') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Calculate units and amount dynamically
+    function updateCalculations() {
+        const previousReading = parseFloat(document.getElementById('previous_reading').value) || 0;
+        const currentReading = parseFloat(document.getElementById('current_reading').value) || 0;
+        const ratePerUnit = parseFloat(document.getElementById('rate_per_unit').value) || 0;
+        
+        const unitsConsumed = currentReading - previousReading;
+        const amount = unitsConsumed * ratePerUnit;
+        
+        document.getElementById('units-value').textContent = unitsConsumed.toFixed(2);
+        document.getElementById('summary-units').textContent = unitsConsumed.toFixed(2);
+        document.getElementById('summary-amount').textContent = '₹' + amount.toFixed(2);
+        
+        if (unitsConsumed > 0) {
+            document.getElementById('units-info').style.display = 'block';
+        }
+    }
+    
+    // Add event listeners
+    document.getElementById('previous_reading').addEventListener('change', updateCalculations);
+    document.getElementById('current_reading').addEventListener('change', updateCalculations);
+    document.getElementById('current_reading').addEventListener('input', updateCalculations);
+    document.getElementById('rate_per_unit').addEventListener('change', updateCalculations);
+    document.getElementById('rate_per_unit').addEventListener('input', updateCalculations);
+</script>
+{% endblock %}

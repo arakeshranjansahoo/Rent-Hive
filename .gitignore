@@ -1,0 +1,102 @@
+# =====================================================
+# RentHive .gitignore
+# =====================================================
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+build/
+dist/
+.eggs/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ---- Virtual environments ----
+venv/
+.venv/
+env/
+.ENV/
+env.bak/
+venv.bak/
+ENV/
+.python-version
+
+# ---- Environment files (NEVER commit secrets) ----
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+
+# ---- Database files ----
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite3-journal
+*.sql
+instance/
+app.db
+renthive.db
+
+# ---- Flask instance folder ----
+instance/
+
+# ---- Logs ----
+logs/
+*.log
+logs/*.log
+logs/*.log.*
+
+# ---- User uploads (do NOT commit user data) ----
+uploads/
+!uploads/.gitkeep
+bills/
+!bills/.gitkeep
+
+# ---- Migrations (keep folder, ignore auto-generated cache) ----
+migrations/__pycache__/
+
+# ---- IDE / Editor ----
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.iml
+
+# ---- Testing / Coverage ----
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.pytest_cache/
+.tox/
+.cache
+nosetests.xml
+
+# ---- OS generated ----
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# ---- Misc ----
+*.bak
+*.tmp
+*.orig
+*.rej
+.tmp/
+
+# ---- Render / Deploy artifacts ----
+.render/
+render.yaml.bak

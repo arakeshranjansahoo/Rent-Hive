@@ -1,0 +1,50 @@
+# =====================================================
+# render.yaml — Infrastructure as code for RentHive on Render
+# =====================================================
+# Usage:
+#   1. From the Render dashboard, click "New +" -> "Blueprint"
+#   2. Connect this repository; Render reads render.yaml and provisions.
+#
+# Required environment variables (set on the Web Service after deploy):
+#   SECRET_KEY        — long random string
+#   DATABASE_URL      — auto-populated from the Postgres service below
+#   FLASK_ENV=production
+#
+# Optional:
+#   MAIL_USERNAME / MAIL_PASSWORD (SMTP)
+#   MAX_CONTENT_LENGTH, UPLOAD_FOLDER, BILLS_FOLDER
+# =====================================================
+
+services:
+  - type: web
+    name: renthive
+    runtime: python
+    plan: starter
+    buildCommand: "pip install --upgrade pip && pip install -r requirements.txt"
+    startCommand: "gunicorn run:app --workers 2 --timeout 120 --access-logfile - --error-logfile -"
+    healthCheckPath: "/"
+    autoDeploy: true
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SECRET_KEY
+        sync: false   # you must set this manually in the Render dashboard
+      - key: DATABASE_URL
+        fromDatabase:
+          name: renthive-db
+          property: connectionString
+      - key: MAX_CONTENT_LENGTH
+        value: "16777216"
+      - key: UPLOAD_FOLDER
+        value: uploads
+      - key: BILLS_FOLDER
+        value: bills
+
+databases:
+  - name: renthive-db
+    plan: starter
+    databaseName: renthive
+    user: renthive
+    ipAllowList: []  # only allow internal + web service connections

@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Add Tenant - RentHive{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-user-plus"></i> Add New Tenant</h4>
+                <p class="text-muted mb-0">Property: <strong>{{ property.name }}</strong> | Room: <strong>{{ room.room_number }}</strong></p>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('properties.add_tenant', room_id=room.id) }}" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Personal Information -->
+                    <h5 class="mb-3"><i class="fas fa-user"></i> Personal Information</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="full_name" class="form-label">Full Name *</label>
+                            {{ form.full_name(class="form-control", placeholder="Full name") }}
+                            {% if form.full_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.full_name.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email *</label>
+                            {{ form.email(class="form-control", placeholder="email@example.com") }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-1">{{ form.email.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="phone" class="form-label">Phone Number *</label>
+                            {{ form.phone(class="form-control", placeholder="10-15 digits") }}
+                            {% if form.phone.errors %}
+                                <div class="text-danger small mt-1">{{ form.phone.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="occupation" class="form-label">Occupation</label>
+                            {{ form.occupation(class="form-control", placeholder="e.g., Software Engineer") }}
+                            {% if form.occupation.errors %}
+                                <div class="text-danger small mt-1">{{ form.occupation.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- ID Verification -->
+                    <h5 class="mb-3"><i class="fas fa-id-card"></i> ID Verification</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_proof_type" class="form-label">ID Proof Type *</label>
+                            {{ form.id_proof_type(class="form-select") }}
+                            {% if form.id_proof_type.errors %}
+                                <div class="text-danger small mt-1">{{ form.id_proof_type.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="id_proof_number" class="form-label">ID Proof Number *</label>
+                            {{ form.id_proof_number(class="form-control", placeholder="ID number") }}
+                            {% if form.id_proof_number.errors %}
+                                <div class="text-danger small mt-1">{{ form.id_proof_number.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_proof_file" class="form-label">Upload ID Proof</label>
+                        <div class="input-group">
+                            {{ form.id_proof_file(class="form-control") }}
+                            <span class="input-group-text"><i class="fas fa-file-upload"></i></span>
+                        </div>
+                        <small class="text-muted">JPG, PNG, or PDF (Max 5MB)</small>
+                        {% if form.id_proof_file.errors %}
+                            <div class="text-danger small mt-1">{{ form.id_proof_file.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Emergency Contact -->
+                    <h5 class="mb-3"><i class="fas fa-phone-alt"></i> Emergency Contact</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="emergency_contact_name" class="form-label">Emergency Contact Name</label>
+                            {{ form.emergency_contact_name(class="form-control", placeholder="Full name") }}
+                            {% if form.emergency_contact_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.emergency_contact_name.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="emergency_contact" class="form-label">Emergency Contact Phone</label>
+                            {{ form.emergency_contact(class="form-control", placeholder="Phone number") }}
+                            {% if form.emergency_contact.errors %}
+                                <div class="text-danger small mt-1">{{ form.emergency_contact.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Lease Details -->
+                    <h5 class="mb-3"><i class="fas fa-file-contract"></i> Lease Details</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="move_in_date" class="form-label">Move-in Date</label>
+                            {{ form.move_in_date(class="form-control", type="date") }}
+                            {% if form.move_in_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.move_in_date.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="lease_start" class="form-label">Lease Start Date *</label>
+                            {{ form.lease_start(class="form-control", type="date") }}
+                            {% if form.lease_start.errors %}
+                                <div class="text-danger small mt-1">{{ form.lease_start.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="lease_end" class="form-label">Lease End Date *</label>
+                            {{ form.lease_end(class="form-control", type="date") }}
+                            {% if form.lease_end.errors %}
+                                <div class="text-danger small mt-1">{{ form.lease_end.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="deposit_paid" class="form-label">Deposit Paid *</label>
+                            {{ form.deposit_paid(class="form-control", placeholder="0.00") }}
+                            {% if form.deposit_paid.errors %}
+                                <div class="text-danger small mt-1">{{ form.deposit_paid.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-user-check"></i> Add Tenant
+                        </button>
+                        <a href="{{ url_for('properties.view_room', room_id=room.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

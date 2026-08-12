@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Record Payment - RentHive{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('billing.list_bills') }}">Bills</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('billing.view_bill', bill_id=bill.id) }}">{{ bill.bill_number }}</a></li>
+                <li class="breadcrumb-item active">Record Payment</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-money-bill"></i> Record Payment</h4>
+            </div>
+            <div class="card-body">
+                <!-- Bill Summary -->
+                <div class="alert alert-info" role="alert">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Bill Number:</strong> {{ bill.bill_number }}</p>
+                            <p class="mb-1"><strong>Bill Month:</strong> {{ bill.bill_month }}</p>
+                            <p class="mb-0"><strong>Total Amount:</strong> ₹{{ "%.2f"|format(bill.total_amount) }}</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <p class="mb-1"><strong>Outstanding Balance:</strong></p>
+                            <h4 class="text-warning mb-0">₹{{ "%.2f"|format(bill.balance) }}</h4>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="POST" action="{{ url_for('billing.record_payment', bill_id=bill.id) }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="payment_method" class="form-label">Payment Method *</label>
+                            {{ form.payment_method(class="form-select") }}
+                            {% if form.payment_method.errors %}
+                                <div class="text-danger small mt-1">{{ form.payment_method.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="payment_date" class="form-label">Payment Date *</label>
+                            {{ form.payment_date(class="form-control", type="date") }}
+                            {% if form.payment_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.payment_date.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="amount_paid" class="form-label">Amount Paid *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            {{ form.amount_paid(class="form-control", step="0.01", placeholder="0.00") }}
+                        </div>
+                        <small class="text-muted">Maximum: ₹{{ "%.2f"|format(bill.balance) }}</small>
+                        {% if form.amount_paid.errors %}
+                            <div class="text-danger small mt-1">{{ form.amount_paid.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="transaction_id" class="form-label">Transaction ID / Reference Number</label>
+                        {{ form.transaction_id(class="form-control", placeholder="e.g., TXN123456") }}
+                        {% if form.transaction_id.errors %}
+                            <div class="text-danger small mt-1">{{ form.transaction_id.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes (Optional)</label>
+                        {{ form.notes(class="form-control", rows="3", placeholder="Additional notes...") }}
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Summary -->
+                    <div class="card bg-light mb-3">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1"><i class="fas fa-receipt"></i> <strong>Outstanding Balance:</strong></p>
+                                    <h5 class="text-danger">₹{{ "%.2f"|format(bill.balance) }}</h5>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <p class="mb-1"><i class="fas fa-check-circle"></i> <strong>After Payment:</strong></p>
+                                    <h5 id="remaining_balance">₹{{ "%.2f"|format(bill.balance) }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check"></i> Record Payment
+                        </button>
+                        <a href="{{ url_for('billing.view_bill', bill_id=bill.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Update remaining balance as user types
+    document.getElementById('amount_paid').addEventListener('input', function() {
+        const balance = {{ bill.balance }};
+        const amountPaid = parseFloat(this.value) || 0;
+        const remaining = balance - amountPaid;
+        document.getElementById('remaining_balance').textContent = '₹' + remaining.toFixed(2);
+    });
+</script>
+{% endblock %}

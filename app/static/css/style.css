@@ -1,0 +1,365 @@
+/**
+ * RentHive Custom Styles
+ * Version: 7.0
+ * Color Theme: Light Green, Off White, Sandy Dune
+ */
+
+/* Additional custom styles beyond base.html inline styles */
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--off-white);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--light-green);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--dark-green);
+}
+
+/* Form focus effects */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--light-green);
+    box-shadow: 0 0 0 0.25rem rgba(127, 176, 105, 0.25);
+}
+
+/* Card animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+/* Stat card hover effect */
+.stat-card {
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Button loading state */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Table enhancements */
+.table-hover tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+/* Badge enhancements */
+.badge {
+    font-weight: 600;
+    padding: 0.5em 0.8em;
+}
+
+/* List group enhancements */
+.list-group-item {
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.list-group-item:hover {
+    border-left-color: var(--light-green);
+    background-color: var(--sandy-dune);
+    transform: translateX(5px);
+}
+
+/* Alert animations */
+.alert {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Breadcrumb styling */
+.breadcrumb {
+    background-color: var(--sandy-dune);
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: var(--dark-green);
+}
+
+/* Input group enhancements */
+.input-group-text {
+    background-color: var(--sandy-dune);
+    border-color: var(--sandy-dune);
+    color: var(--dark-green);
+    font-weight: 600;
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+    .stat-card h3 {
+        font-size: 1.5rem;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+}
+
+/* Loading spinner */
+.spinner-border-custom {
+    border-color: var(--light-green);
+    border-right-color: transparent;
+}
+
+/* Empty state illustrations */
+.empty-state {
+    padding: 3rem 1rem;
+    text-align: center;
+}
+
+.empty-state i {
+    color: var(--sandy-dune);
+    margin-bottom: 1rem;
+}
+
+/* Print styles */
+@media print {
+    .navbar,
+    .btn,
+    footer {
+        display: none !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
+}
+
+/* Status indicators */
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.status-indicator.active {
+    background-color: #28a745;
+    box-shadow: 0 0 5px #28a745;
+}
+
+.status-indicator.inactive {
+    background-color: #dc3545;
+}
+
+.status-indicator.pending {
+    background-color: #ffc107;
+}
+
+/* Custom tooltip */
+[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--dark-green);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 5px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    font-size: 0.85rem;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+}
+
+/* File upload styling */
+.file-upload-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.file-upload-wrapper input[type=file] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Progress bar custom */
+.progress {
+    height: 25px;
+    border-radius: 10px;
+    background-color: var(--sandy-dune);
+}
+
+.progress-bar {
+    background-color: var(--light-green);
+}
+
+/* Timeline styles (for future use) */
+.timeline {
+    position: relative;
+    padding: 0;
+    list-style: none;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--sandy-dune);
+    left: 20px;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 50px;
+    margin-bottom: 2rem;
+}
+
+.timeline-icon {
+    position: absolute;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--light-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    z-index: 1;
+}
+
+/* Error page styling */
+.error-page {
+    margin-top: 5rem;
+    margin-bottom: 5rem;
+}
+
+.error-code {
+    font-size: 7rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    line-height: 1;
+}
+
+.error-400 {
+    color: #ffc107;
+}
+
+.error-403 {
+    color: var(--dark-green);
+}
+
+.error-404 {
+    color: var(--light-green);
+}
+
+.error-405 {
+    color: #fd7e14;
+}
+
+.error-500 {
+    color: #dc3545;
+}
+
+/* Auth page card styling */
+.auth-card {
+    margin-top: 2rem;
+}
+
+/* Demo credentials card styling */
+.demo-card {
+    background-color: var(--sandy-dune);
+}
+
+/* Profile avatar styling */
+.profile-avatar {
+    width: 110px;
+    height: 110px;
+    background: linear-gradient(135deg, var(--light-green), var(--dark-green));
+    color: white;
+    font-size: 3rem;
+}
+
+/* Table label column width */
+.table-label-col {
+    width: 35%;
+}

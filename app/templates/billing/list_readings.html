@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Meter Readings - RentHive{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2><i class="fas fa-tachometer-alt"></i> Meter Readings</h2>
+    </div>
+    {% if current_user.role == 'owner' %}
+    <div class="col-auto">
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="row">
+    <div class="col">
+        {% if readings %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list"></i> Meter Reading History</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Room/Property</th>
+                                <th>Meter Type</th>
+                                <th>Reading Date</th>
+                                <th>Previous Reading</th>
+                                <th>Current Reading</th>
+                                <th>Units Consumed</th>
+                                <th>Amount (₹)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reading in readings %}
+                            <tr>
+                                <td>
+                                    {% if current_user.role == 'owner' %}
+                                        <div>
+                                            <strong>{{ reading.room.property.name }}</strong>
+                                            <br>
+                                            <small class="text-muted">Room {{ reading.room.room_number }}</small>
+                                        </div>
+                                    {% else %}
+                                        Room {{ reading.room.room_number }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if reading.meter_type == 'electricity' %}
+                                        <i class="fas fa-bolt text-warning"></i> Electricity
+                                    {% elif reading.meter_type == 'water' %}
+                                        <i class="fas fa-water text-info"></i> Water
+                                    {% else %}
+                                        {{ reading.meter_type.capitalize() }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ reading.reading_date.strftime('%d-%m-%Y') }}</td>
+                                <td>{{ reading.previous_reading }}</td>
+                                <td><strong>{{ reading.current_reading }}</strong></td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ reading.units_consumed }}</span>
+                                </td>
+                                <td><strong>₹{{ "%.2f"|format(reading.amount) }}</strong></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" 
+                                            data-bs-target="#details-{{ reading.id }}" aria-expanded="false">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="collapse" id="details-{{ reading.id }}">
+                                <td colspan="8">
+                                    <div class="card border-0">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <h6>Reading Details</h6>
+                                                    <ul class="list-unstyled small">
+                                                        <li><strong>Rate per Unit:</strong> ₹{{ "%.2f"|format(reading.rate_per_unit) }}</li>
+                                                        <li><strong>Total Amount:</strong> ₹{{ "%.2f"|format(reading.amount) }}</li>
+                                                        <li><strong>Reading Date:</strong> {{ reading.reading_date.strftime('%d-%m-%Y %H:%M') }}</li>
+                                                        <li><strong>Recorded:</strong> {{ reading.created_at.strftime('%d-%m-%Y %H:%M') if reading.created_at else 'N/A' }}</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    {% if reading.notes %}
+                                                    <h6>Notes</h6>
+                                                    <p class="text-muted">{{ reading.notes }}</p>
+                                                    {% endif %}
+                                                    {% if reading.photo %}
+                                                    <h6>Photo</h6>
+                                                    <p><i class="fas fa-image"></i> <a href="{{ url_for('static', filename='uploads/' + reading.photo) }}" target="_blank">View Photo</a></p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle"></i> 
+            {% if current_user.role == 'owner' %}
+                No meter readings recorded yet.
+            {% else %}
+                No meter readings available for your account yet.
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Statistics -->
+{% if readings %}
+<div class="row mt-4">
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5><i class="fas fa-bolt text-warning"></i></h5>
+                <h3>{{ readings|selectattr('meter_type', 'equalto', 'electricity')|list|length }}</h3>
+                <p class="text-muted mb-0">Electricity Readings</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5><i class="fas fa-water text-info"></i></h5>
+                <h3>{{ readings|selectattr('meter_type', 'equalto', 'water')|list|length }}</h3>
+                <p class="text-muted mb-0">Water Readings</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5><i class="fas fa-rupee-sign text-success"></i></h5>
+                <h3>₹{{ "%.0f"|format(readings|map(attribute='amount')|sum) }}</h3>
+                <p class="text-muted mb-0">Total Amount</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
