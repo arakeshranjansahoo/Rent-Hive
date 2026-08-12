@@ -18,6 +18,7 @@ import os
 import sys
 import logging
 from datetime import datetime
+from dotenv import load_dotenv
 
 # Add the RentHive app to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -36,6 +37,9 @@ def init_production_database():
     logger.info("RentHive Production Database Initialization")
     logger.info("=" * 70)
     
+    # Load environment variables from .env if present
+    load_dotenv()
+
     # Validate environment
     if not os.environ.get('DATABASE_URL'):
         logger.error("ERROR: DATABASE_URL environment variable is not set!")
@@ -67,7 +71,8 @@ def init_production_database():
             
             # Test connection by executing a simple query
             try:
-                result = db.session.execute(db.text('SELECT 1'))
+                from sqlalchemy import text
+                result = db.session.execute(text('SELECT 1'))
                 result.close()
                 logger.info("✓ Database connection successful!")
             except Exception as e:

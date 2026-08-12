@@ -115,7 +115,12 @@ def create_app(config_name=None):
     if config_name is None:
         config_name = os.environ.get('FLASK_ENV', 'development')
 
-    app.config.from_object(get_config())
+    config_class = get_config()
+    app.config.from_object(config_class)
+    
+    # Call config's init_app() if it exists (used for production validation)
+    if hasattr(config_class, 'init_app'):
+        config_class.init_app(app)
 
     logger = setup_logging(app)
     logger.info("Starting RentHive in %s mode", config_name)
